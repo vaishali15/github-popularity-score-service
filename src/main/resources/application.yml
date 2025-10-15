@@ -1,0 +1,30 @@
+spring:
+    application:
+        name: "GitHub Popularity Score Service"
+    jackson:
+        property-naming-strategy: SNAKE_CASE
+    http:
+        client:
+            connect-timeout: 5s
+            read-timeout: 15s
+
+server:
+    port: 8080
+
+# Custom app-level configuration
+app:
+    github:
+        base-url: https://api.github.com
+        # optional personal access token to increase rate limits:
+        token: ${GITHUB_TOKEN:}
+    scoring:
+        # Popularity scoring weights
+        stars-weight: 0.7          # Weight for stars
+        forks-weight: 0.2          # Weight for forks
+        recency-weight: 0.1        # Weight for recency
+        recency-half-life-days: 30 # Decay rate for "recent updates"
+
+logging:
+    level:
+        root: INFO
+        com.challenge.github.popularityscore: DEBUG

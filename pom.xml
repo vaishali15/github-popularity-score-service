@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.challenge.github</groupId>
 	<artifactId>github-popularity-score-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>GitHub Popularity Score Service</name>
 	<description>Spring Boot REST API to compute and rank GitHub repositories based on a popularity score.</description>
 	<url/>
@@ -31,7 +31,20 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+    </dependencies>
 
 	<build>
 		<plugins>

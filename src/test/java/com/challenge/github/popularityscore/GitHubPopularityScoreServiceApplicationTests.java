@@ -1,4 +1,4 @@
-package com.challenge.github.github_popularity_score_service;
+package com.challenge.github.popularityscore;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
