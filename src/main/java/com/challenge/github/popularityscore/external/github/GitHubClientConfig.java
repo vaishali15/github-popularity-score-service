@@ -1,9 +1,8 @@
-package com.challenge.github.popularityscore.config;
+package com.challenge.github.popularityscore.external.github;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestClient;
@@ -11,19 +10,18 @@ import org.springframework.web.client.RestClient;
 import java.util.Optional;
 
 /**
- * Configures the GitHub RestClient.Builder to use everywhere in application
+ * Configures the GitHub RestClient
  */
-@Configuration(proxyBeanMethods = false)
-public class ApiClientConfig {
+@Configuration
+public class GitHubClientConfig {
 
     @Bean
-    @Primary
-    RestClient.Builder githubRestClientBuilder(GithubProperties githubProperties, ObjectMapper objectMapper) {
+    RestClient githubRestClient(GithubProperties githubProperties, ObjectMapper objectMapper) {
         var jackson = new MappingJackson2HttpMessageConverter(objectMapper);
 
         var githubRestClientBuilder = RestClient.builder()
             .baseUrl(githubProperties.baseUrl())
-            .messageConverters(converters -> converters.add(0, jackson))
+            .messageConverters(converters -> converters.addFirst(jackson))
             .defaultHeader(HttpHeaders.ACCEPT, "application/vnd.github+json")
             .defaultHeader("X-GitHub-Api-Version", "2022-11-28");
 
@@ -31,6 +29,6 @@ public class ApiClientConfig {
             .filter(token -> !token.isBlank())
             .ifPresent(token -> githubRestClientBuilder.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token));
 
-        return githubRestClientBuilder;
+        return githubRestClientBuilder.build();
     }
 }

@@ -1,13 +1,11 @@
-package com.challenge.github.popularityscore.dto.ingress;
+package com.challenge.github.popularityscore.external.github.model;
 
 import lombok.Builder;
-import lombok.extern.jackson.Jacksonized;
 
 import java.time.OffsetDateTime;
 
-@Jacksonized
 @Builder
-public record GithubRepositoryItemDto(
+public record GithubRepositoryItem(
     String fullName,
     String htmlUrl,
     int stargazersCount,

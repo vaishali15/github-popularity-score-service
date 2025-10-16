@@ -1,8 +1,6 @@
 spring:
     application:
         name: "GitHub Popularity Score Service"
-    jackson:
-        property-naming-strategy: SNAKE_CASE
     http:
         client:
             connect-timeout: 5s

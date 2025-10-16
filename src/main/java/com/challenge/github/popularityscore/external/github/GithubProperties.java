@@ -1,4 +1,4 @@
-package com.challenge.github.popularityscore.config;
+package com.challenge.github.popularityscore.external.github;
 
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -17,7 +17,6 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "app.github")
 public record GithubProperties(
     @NotBlank String baseUrl,
-    String token
-) {
+    String token) {
 }
 

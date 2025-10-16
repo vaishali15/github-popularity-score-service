@@ -1,14 +1,15 @@
-package com.challenge.github.popularityscore.dto.ingress;
+package com.challenge.github.popularityscore.external.github.dto;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
-import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
 
 /**
  * Root response from the GitHub Search Repositories API.
  */
-@Jacksonized
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Builder
 public record GithubSearchResponseDto(
     int totalCount,

@@ -1,13 +1,18 @@
 package com.challenge.github.popularityscore.controller;
 
 
-import com.challenge.github.popularityscore.dto.egress.PageResponseDto;
-import com.challenge.github.popularityscore.dto.egress.RepositoryResponseDto;
-import com.challenge.github.popularityscore.service.GithubRepositorySearchService;
+import com.challenge.github.popularityscore.dto.ApiSearchResponseDto;
+import com.challenge.github.popularityscore.mapper.ApiSearchResponseMapper;
+import com.challenge.github.popularityscore.mapper.ApiSearchResponseMapperImpl;
+import com.challenge.github.popularityscore.mapper.RepositoryMapperImpl;
+import com.challenge.github.popularityscore.model.ApiSearchResponse;
+import com.challenge.github.popularityscore.model.Repository;
+import com.challenge.github.popularityscore.service.RepositorySearchService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -21,8 +26,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(RepositorySearchController.class)
-public class RepositorySearchControllerTest {
+@WebMvcTest(SearchController.class)
+@Import({ApiSearchResponseMapperImpl.class, RepositoryMapperImpl.class})
+public class SearchControllerTest {
 
     private static final String SEARCH_URL = "/api/v1/repositories/search";
     private static final OffsetDateTime SAMPLE_TIME = parse("2025-10-01T00:00:00Z");
@@ -33,33 +39,44 @@ public class RepositorySearchControllerTest {
     ObjectMapper mapper;
 
     @MockitoBean
-    GithubRepositorySearchService service;
+    RepositorySearchService service;
+
+    @Autowired
+    ApiSearchResponseMapper apiSearchResponseMapper;
 
     @Test
     void searchRepositories() throws Exception {
-        var item = new RepositoryResponseDto(
-            "test/repo", "https://github.com/test/repo",
-            10, 2, parse("2025-10-01T00:00:00Z"), 123.45
-        );
-        var pageResponseDto = new PageResponseDto<>(1, 2, 1, 100, List.of(item));
+        var item = Repository.builder()
+            .repositoryName("test/repo")
+            .repositoryUrl("https://github.com/test/repo")
+            .stars(10)
+            .forks(2)
+            .lastUpdated(parse("2025-10-01T00:00:00Z"))
+            .popularityScore(123.45)
+            .build();
+        var apiSearchResponse = ApiSearchResponse.builder()
+            .page(1)
+            .size(2)
+            .total(1)
+            .totalAvailable(100)
+            .gitHubRepoMetaList(List.of(item))
+            .build();
 
-        when(service.search("Java", "2024-01-01", 1, 2)).thenReturn(pageResponseDto);
+        when(service.search("Java", "2024-01-01", 1, 2)).thenReturn(apiSearchResponse);
 
-        var mvcResult = mvc.perform(get("/api/v1/repositories/search")
+        var mvcResult = mvc.perform(get(SEARCH_URL)
                 .param("language", "Java")
                 .param("createdAfter", "2024-01-01")
-                .param("page", "1").param("size", "2"))
+                .param("page", "1")
+                .param("size", "2"))
             .andExpect(status().isOk())
             .andReturn();
 
         var body = mvcResult.getResponse().getContentAsString();
+        var dto = mapper.readValue(body, ApiSearchResponseDto.class);
 
-        var type = mapper.getTypeFactory()
-            .constructParametricType(PageResponseDto.class, RepositoryResponseDto.class);
-        PageResponseDto<RepositoryResponseDto> page = mapper.readValue(body, type);
-
-        assertThat(page.totalAvailable()).isEqualTo(100);
-        assertThat(page.items()).isNotEmpty();
+        assertThat(dto.totalAvailable()).isEqualTo(100);
+        assertThat(dto.gitHubRepoMetaList()).isNotEmpty();
     }
 
     @Test

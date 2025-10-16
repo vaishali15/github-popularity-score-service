@@ -1,7 +1,7 @@
 package com.challenge.github.popularityscore.it;
 
-import com.challenge.github.popularityscore.dto.egress.PageResponseDto;
-import com.challenge.github.popularityscore.dto.egress.RepositoryResponseDto;
+import com.challenge.github.popularityscore.dto.ApiSearchResponseDto;
+import com.challenge.github.popularityscore.dto.GitHubRepoMetaDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import org.junit.jupiter.api.AfterAll;
@@ -60,7 +60,7 @@ public class RepositorySearchIT {
             .willReturn(okJson("""
                   {
                     "total_count": 100,
-                    "items": [
+                    "gitHubRepoMetaList": [
                       {
                         "full_name": "test/repo",
                         "html_url": "https://github.com/test/repo",
@@ -82,21 +82,21 @@ public class RepositorySearchIT {
 
         // Deserialize using app’s ObjectMapper (handles SNAKE_CASE globally)
         var type = mapper.getTypeFactory()
-            .constructParametricType(PageResponseDto.class, RepositoryResponseDto.class);
-        PageResponseDto<RepositoryResponseDto> page = mapper.readValue(resp.getBody(), type);
+            .constructParametricType(ApiSearchResponseDto.class, GitHubRepoMetaDto.class);
+        ApiSearchResponseDto apiSearchResponseDto = mapper.readValue(resp.getBody(), type);
 
-        assertThat(page.page()).isEqualTo(1);
-        assertThat(page.total()).isEqualTo(1);
-        assertThat(page.items()).hasSize(1);
-        assertThat(page.items().getFirst().repositoryName()).isEqualTo("test/repo");
-        assertThat(page.items().getFirst().popularityScore()).isGreaterThan(0.0);
+        assertThat(apiSearchResponseDto.page()).isEqualTo(1);
+        assertThat(apiSearchResponseDto.total()).isEqualTo(1);
+        assertThat(apiSearchResponseDto.gitHubRepoMetaList()).hasSize(1);
+        assertThat(apiSearchResponseDto.gitHubRepoMetaList().getFirst().repositoryName()).isEqualTo("test/repo");
+        assertThat(apiSearchResponseDto.gitHubRepoMetaList().getFirst().popularityScore()).isGreaterThan(0.0);
     }
 
     @Test
     void emptyResult() throws Exception {
         wireMockServer.stubFor(get(urlPathEqualTo("/search/repositories"))
             .willReturn(okJson("""
-                  {"total_count":0,"items":[]}
+                  {"total_count":0,"gitHubRepoMetaList":[]}
                 """)));
 
         var resp = http.getForEntity(
@@ -105,6 +105,6 @@ public class RepositorySearchIT {
         );
 
         assertThat(resp.getStatusCode().value()).isEqualTo(200);
-        assertThat(resp.getBody()).contains("\"items\":[]");
+        assertThat(resp.getBody()).contains("\"gitHubRepoMetaList\":[]");
     }
 }

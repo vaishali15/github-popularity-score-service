@@ -1,7 +1,7 @@
 package com.challenge.github.popularityscore.service;
 
-import com.challenge.github.popularityscore.config.ScoringProperties;
-import com.challenge.github.popularityscore.dto.ingress.GithubRepositoryItemDto;
+import com.challenge.github.popularityscore.config.ScoreConfig;
+import com.challenge.github.popularityscore.external.github.model.GithubRepositoryItem;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -16,10 +16,10 @@ class PopularityScoreCalculatorTest {
     private static final OffsetDateTime NOW = parse("2025-10-15T12:00:00Z");
 
     private final PopularityScoreCalculator calculator =
-        new PopularityScoreCalculator(new ScoringProperties(0.7, 0.2, 0.1, 30));
+        new PopularityScoreCalculator(new ScoreConfig(0.7, 0.2, 0.1, 30));
 
-    private static GithubRepositoryItemDto repo(String name, int stars, int forks, int daysAgo) {
-        return GithubRepositoryItemDto.builder()
+    private static GithubRepositoryItem repo(String name, int stars, int forks, int daysAgo) {
+        return GithubRepositoryItem.builder()
             .fullName(name)
             .htmlUrl("https://github.com/" + name)
             .stargazersCount(stars)
@@ -32,11 +32,10 @@ class PopularityScoreCalculatorTest {
     @Test
     void scoreIsNonNegative() {
         var repo = repo("test/repo", 0, 0, 365);
-        var score = calculator.calculate(repo, NOW).score();
+        var score = calculator.calculate(repo, NOW);
         assertThat(score).isGreaterThanOrEqualTo(0.0);
     }
 
-    // -- helpers -------------------------------------------------------------
 
     @ParameterizedTest(name = "[{index}] Repository 1(★ : {0} ,forks : {1} ,lastUpdatedDaysAgo : {2}) -> Repository 2(★ : {3} ,forks : {4} ,lastUpdatedDaysAgo : {5})")
     @CsvSource({
@@ -57,11 +56,11 @@ class PopularityScoreCalculatorTest {
         "200, 1,  14,  300, 2,  3"
     })
     void calculatePopularityScore(int starsA, int forksA, int daysAgoA, int starsB, int forksB, int daysAgoB) {
-        var githubRepositoryItemDto1 = repo("a/repo", starsA, forksA, daysAgoA);
-        var githubRepositoryItemDto2 = repo("b/repo", starsB, forksB, daysAgoB);
+        var githubRepositoryItem1 = repo("a/repo", starsA, forksA, daysAgoA);
+        var githubRepositoryItem2 = repo("b/repo", starsB, forksB, daysAgoB);
 
-        var scoreA = calculator.calculate(githubRepositoryItemDto1, NOW).score();
-        var scoreB = calculator.calculate(githubRepositoryItemDto2, NOW).score();
+        var scoreA = calculator.calculate(githubRepositoryItem1, NOW);
+        var scoreB = calculator.calculate(githubRepositoryItem2, NOW);
 
         assertThat(scoreB)
             .as("Expected B to score higher than A when one or more factors")

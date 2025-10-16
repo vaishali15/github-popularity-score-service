@@ -13,8 +13,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @param recencyHalfLifeDays half-life in days for exponential recency decay
  */
 @ConfigurationProperties(prefix = "app.scoring")
-public record ScoringProperties(double starsWeight,
-                                double forksWeight,
-                                double recencyWeight,
-                                int recencyHalfLifeDays) {
+public record ScoreConfig(double starsWeight,
+                          double forksWeight,
+                          double recencyWeight,
+                          int recencyHalfLifeDays) {
 }

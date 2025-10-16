@@ -1,19 +1,18 @@
-package com.challenge.github.popularityscore.dto.egress;
+package com.challenge.github.popularityscore.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
-import lombok.extern.jackson.Jacksonized;
 
 import java.time.OffsetDateTime;
 
 /**
  * API response model for a repository with its popularity score.
  */
-@Jacksonized
+
 @Builder
 @Schema(name = "Repository",
     description = "Repository summary with a computed popularity score.")
-public record RepositoryResponseDto(
+public record GitHubRepoMetaDto(
     @Schema(description = "Repository full name", example = "spring-projects/spring-boot")
     String repositoryName,
 
